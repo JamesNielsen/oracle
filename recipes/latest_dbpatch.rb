@@ -52,16 +52,16 @@ unless node[:oracle][:rdbms][:latest_patch][:is_installed]
   end
   
   # Making sure ocm.rsp response file is present.
-  if !node[:oracle][:rdbms][:response_file_url].empty?
+  if !node[:oracle][:rdbms][:ocm_response_file_url].empty?
     execute "fetch_response_file" do
-      command "curl -kO #{node[:oracle][:rdbms][:response_file_url]}"
+      command "curl -kO #{node[:oracle][:rdbms][:ocm_response_file_url]}"
       user "oracle"
       group 'oinstall'
       cwd node[:oracle][:rdbms][:install_dir]
     end
   else
     execute 'gen_response_file' do
-      command "echo | ./OPatch/ocm/bin/emocmrsp -output ./ocm.rsp foo bar && chmod 0644 ./ocm.rsp"
+      command "echo | ./OPatch/ocm/bin/emocmrsp -output #{node[:oracle][:rdbms][:install_dir]}/ocm.rsp foo bar && chmod 0644 #{node[:oracle][:rdbms][:install_dir]}/ocm.rsp"
       user "oracle"
       group 'oinstall'
       cwd node[:oracle][:rdbms][:ora_home]
@@ -74,7 +74,7 @@ unless node[:oracle][:rdbms][:latest_patch][:is_installed]
     group 'oinstall'
     cwd "#{node[:oracle][:rdbms][:install_dir]}/#{node[:oracle][:rdbms][:latest_patch][:dirname]}"
     environment (node[:oracle][:rdbms][:env])
-    code "#{node[:oracle][:rdbms][:ora_home]}/OPatch/opatch apply -silent -ocmrf #{node[:oracle][:rdbms][:ora_home]}/ocm.rsp"
+    code "#{node[:oracle][:rdbms][:ora_home]}/OPatch/opatch apply -silent -ocmrf #{node[:oracle][:rdbms][:install_dir]}/ocm.rsp"
     notifies :create, "ruby_block[set_latest_patch_install_flag]", :immediately
     notifies :create, "ruby_block[set_rdbms_version_attr]", :immediately
   end
