@@ -1,0 +1,30 @@
+---
+driver:
+  require_chef_omnibus: latest
+
+provisioner:
+  name: chef_solo
+
+platforms:
+  - name: opscode_centos-6.5
+    driver:
+      name: vagrant
+      box: opscode_centos-6.5
+      box_url: http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.5_chef-provisionerless.box
+
+suites:
+  - name: default
+    run_list:
+      - recipe[oracle::default]
+      - recipe[oracle::logrotate_alert_log]
+      - recipe[oracle::logrotate_listener]
+      - recipe[oracle::createdb]
+    attributes:
+     oracle:
+       rdbms:
+         latest_patch:
+           url: 'https://secure.server.localdomain/path/to/p16619892_112030_Linux-x86-64.zip'
+           opatch_update_url: 'https://secure.server.localdomain/path/to/p6880880_112000_Linux-x86-64.zip'
+         install_files:
+           - 'https://secure.server.localdomain/path/to/p10404530_112030_Linux-x86-64_1of7.zip'
+           - 'https://secure.server.localdomain/path/to/p10404530_112030_Linux-x86-64_2of7.zip'
